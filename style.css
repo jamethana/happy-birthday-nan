@@ -615,3 +615,30 @@ h1:hover {
         image-rendering: crisp-edges;
     }
 }
+
+/* CRITICAL: Disable hover effects while preserving centering for "Today is not Nan's birthday" text */
+#birthdayOverlay h1 {
+    transform: translate(-50%, -50%) !important;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7) !important;
+    animation: none !important;
+    transition: none !important;
+    will-change: auto !important;
+}
+
+#birthdayOverlay h1:hover,
+#birthdayOverlay h1:focus,
+#birthdayOverlay h1:active {
+    transform: translate(-50%, -50%) !important;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7) !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Override any existing h1 hover rules specifically for birthdayOverlay */
+body #birthdayOverlay h1:hover {
+    transform: translate(-50%, -50%) !important;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7) !important;
+    animation: none !important;
+    transition: none !important;
+}
+
