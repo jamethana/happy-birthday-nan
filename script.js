@@ -106,12 +106,17 @@ function showBirthdayContent() {
                     margin: 0;
                     font-weight: normal;
                     animation: none;
+                    background: rgba(0, 0, 0, 0.3);
+                    padding: 20px 40px;
+                    border-radius: 20px;
+                    backdrop-filter: blur(10px);
                 ">Today is not Nan's birthday</h1>
             </div>
             <button id="celebrateAnyway" style="
                 position: fixed;
                 bottom: 20px;
-                left: 20px;
+                left: 50%;
+                transform: translateX(-50%);
                 background: #333;
                 color: white;
                 border: 1px solid #666;
@@ -578,11 +583,346 @@ document.addEventListener('visibilitychange', () => {
         }
 });
 
+// 🎉 EXCITING NEW FEATURES 🎉
+
+// Celebration state management - Always on!
+let celebrationMode = true;
+let confettiEngine = null;
+let fireworksEngine = null;
+
+// Initialize tsParticles
+async function initializeParticles() {
+    try {
+        // Initialize confetti
+        confettiEngine = await tsParticles.load("confetti-canvas", {
+            particles: {
+                number: { value: 0 },
+                color: { value: ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57", "#ffd700"] },
+                shape: { type: ["circle", "square", "star"] },
+                size: { value: { min: 1, max: 5 } },
+                move: {
+                    enable: true,
+                    speed: { min: 1, max: 3 },
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                events: {
+                    onClick: {
+                        enable: true,
+                        mode: "push"
+                    }
+                }
+            }
+        });
+
+        // Initialize fireworks
+        fireworksEngine = await tsParticles.load("fireworks-canvas", {
+            particles: {
+                number: { value: 0 },
+                color: { value: ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57"] },
+                shape: { type: "circle" },
+                size: { value: { min: 1, max: 3 } },
+                move: {
+                    enable: true,
+                    speed: { min: 2, max: 5 },
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            }
+        });
+    } catch (error) {
+        console.warn("Particles initialization failed:", error);
+    }
+}
+
+// 🎊 Confetti Burst Function - LARGER!
+function triggerConfettiBurst(x = 0.5, y = 0.5) {
+    if (!confettiEngine) return;
+    
+    // Create multiple larger confetti particles
+    for (let i = 0; i < 15; i++) {
+        confettiEngine.particles.addParticle({
+            x: x * window.innerWidth,
+            y: y * window.innerHeight,
+            vx: (Math.random() - 0.5) * 20, // Increased velocity
+            vy: -Math.random() * 15 - 8, // Increased upward velocity
+            size: Math.random() * 8 + 3 // Larger size range
+        });
+    }
+}
+
+// 🎆 Fireworks Display
+function triggerFireworks() {
+    if (!fireworksEngine) return;
+    
+    const colors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57"];
+    const x = Math.random() * window.innerWidth;
+    const y = Math.random() * window.innerHeight * 0.5;
+    
+    for (let i = 0; i < 50; i++) {
+        fireworksEngine.particles.addParticle({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 20,
+            vy: (Math.random() - 0.5) * 20,
+            color: colors[Math.floor(Math.random() * colors.length)]
+        });
+    }
+}
+
+// 🎈 Create Floating Balloons - Start Higher!
+function createBalloon() {
+    const balloon = document.createElement('div');
+    balloon.className = 'balloon';
+    balloon.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+    balloon.style.top = '80vh'; // Start higher up
+    balloon.style.background = `linear-gradient(45deg, 
+        hsl(${Math.random() * 360}, 70%, 60%), 
+        hsl(${Math.random() * 360}, 70%, 70%))`;
+    
+    document.body.appendChild(balloon);
+    
+    setTimeout(() => {
+        if (balloon.parentNode) {
+            balloon.parentNode.removeChild(balloon);
+        }
+    }, 8000);
+}
+
+// 🎵 Create Musical Notes
+function createMusicalNote() {
+    const notes = ['♪', '♫', '♬', '♩', '♭', '♯'];
+    const note = document.createElement('div');
+    note.className = 'musical-note';
+    note.textContent = notes[Math.floor(Math.random() * notes.length)];
+    note.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+    note.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+    
+    document.body.appendChild(note);
+    
+    setTimeout(() => {
+        if (note.parentNode) {
+            note.parentNode.removeChild(note);
+        }
+    }, 3000);
+}
+
+// 🌟 Create Sparkles
+function createSparkle() {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    sparkle.style.left = Math.random() * window.innerWidth + 'px';
+    sparkle.style.top = Math.random() * window.innerHeight + 'px';
+    
+    document.body.appendChild(sparkle);
+    
+    setTimeout(() => {
+        if (sparkle.parentNode) {
+            sparkle.parentNode.removeChild(sparkle);
+        }
+    }, 1500);
+}
+
+// 🎊 Create Party Poppers
+function createPartyPopper(x, y) {
+    for (let i = 0; i < 10; i++) {
+        const popper = document.createElement('div');
+        popper.className = 'party-popper';
+        popper.style.left = (x + (Math.random() - 0.5) * 100) + 'px';
+        popper.style.top = (y + (Math.random() - 0.5) * 100) + 'px';
+        popper.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        
+        document.body.appendChild(popper);
+        
+        setTimeout(() => {
+            if (popper.parentNode) {
+                popper.parentNode.removeChild(popper);
+            }
+        }, 1000);
+    }
+}
+
+// 🎯 Create Click Effects
+function createClickEffect(x, y) {
+    const effect = document.createElement('div');
+    effect.className = 'click-effect';
+    effect.style.left = x + 'px';
+    effect.style.top = y + 'px';
+    
+    document.body.appendChild(effect);
+    
+    setTimeout(() => {
+        if (effect.parentNode) {
+            effect.parentNode.removeChild(effect);
+        }
+    }, 600);
+}
+
+// 🎪 Always-On Celebration Mode (Mobile Optimized)
+function startCelebrationEffects() {
+    const intervals = optimizeForMobile();
+    
+    // Balloons with mobile-optimized interval
+    setInterval(() => {
+        createBalloon();
+    }, intervals.balloonInterval);
+    
+    // Musical notes with mobile-optimized interval
+    setInterval(() => {
+        createMusicalNote();
+    }, intervals.noteInterval);
+    
+    // Sparkles with mobile-optimized interval
+    setInterval(() => {
+        createSparkle();
+    }, intervals.sparkleInterval);
+    
+    // Fireworks with mobile-optimized interval
+    setInterval(() => {
+        triggerFireworks();
+    }, intervals.fireworkInterval);
+}
+
+// 🎨 Rainbow Text Effect
+function addRainbowText() {
+    const birthdayText = document.getElementById('birthdayText');
+    if (birthdayText) {
+        birthdayText.classList.add('rainbow-text');
+    }
+}
+
+// 🎵 Sound Wave Visualization
+function createSoundWaves() {
+    const container = document.querySelector('.container');
+    for (let i = 0; i < 20; i++) {
+        const wave = document.createElement('div');
+        wave.className = 'sound-wave';
+        wave.style.left = (i * 20) + 'px';
+        wave.style.animationDelay = (i * 0.1) + 's';
+        container.appendChild(wave);
+    }
+}
+
+// 🎊 Interactive Click Handler
+function handleInteractiveClick(event) {
+    const x = event.clientX;
+    const y = event.clientY;
+    
+    // Create click effect
+    createClickEffect(x, y);
+    
+    // Trigger confetti burst
+    triggerConfettiBurst(x / window.innerWidth, y / window.innerHeight);
+    
+    // Create party poppers
+    createPartyPopper(x, y);
+    
+    // Add some randomness
+    if (Math.random() < 0.3) {
+        createMusicalNote();
+    }
+    if (Math.random() < 0.2) {
+        createBalloon();
+    }
+}
+
+// 🎂 Enhanced Birthday Text Click
+function handleBirthdayTextClick() {
+    // Massive confetti burst
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+            triggerConfettiBurst(0.5, 0.5);
+        }, i * 200);
+    }
+    
+    // Fireworks show
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+            triggerFireworks();
+        }, i * 500);
+    }
+    
+    // Party poppers
+    createPartyPopper(window.innerWidth / 2, window.innerHeight / 2);
+    
+    // Add rainbow effect
+    addRainbowText();
+}
+
+// 🎈 Enhanced Image Click
+function handleImageClick(event) {
+    event.stopPropagation();
+    
+    const x = event.clientX;
+    const y = event.clientY;
+    
+    // Create effects around the image
+    createClickEffect(x, y);
+    triggerConfettiBurst(x / window.innerWidth, y / window.innerHeight);
+    createPartyPopper(x, y);
+    
+    // Make image bounce
+    event.target.style.animation = 'none';
+    setTimeout(() => {
+        event.target.style.animation = 'enhancedFadeInScale 0.5s ease-in-out';
+    }, 10);
+}
+
+// 📱 Mobile Performance Optimizations
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           (window.innerWidth <= 768);
+}
+
+function optimizeForMobile() {
+    if (isMobileDevice()) {
+        // Reduce particle count on mobile
+        CONFIG.minSize = 50;
+        CONFIG.maxSize = 200;
+        
+        // Reduce animation frequency
+        if (window.innerWidth <= 480) {
+            // Very small screens - minimal effects
+            return {
+                balloonInterval: 5000,
+                noteInterval: 4000,
+                sparkleInterval: 2000,
+                fireworkInterval: 8000
+            };
+        } else {
+            // Regular mobile - reduced effects
+            return {
+                balloonInterval: 4000,
+                noteInterval: 3000,
+                sparkleInterval: 1500,
+                fireworkInterval: 6000
+            };
+        }
+    }
+    return {
+        balloonInterval: 3000,
+        noteInterval: 2000,
+        sparkleInterval: 1000,
+        fireworkInterval: 5000
+    };
+}
+
 // Initialize all image controllers when page loads
 window.addEventListener('load', async () => {
     // Always load everything in the background
     await fetchImageFiles();
     initializeImageControllers();
+    
+    // Initialize particles
+    await initializeParticles();
     
     // Update birthday text first
     updateBirthdayText();
@@ -592,6 +932,31 @@ window.addEventListener('load', async () => {
     
     // Then check if it's Nan's birthday and show appropriate content
     showBirthdayContent();
+    
+    // Start celebration effects immediately (always on!)
+    startCelebrationEffects();
+    
+    // Add interactive click handlers
+    document.addEventListener('click', handleInteractiveClick);
+    
+    // Birthday text click handler removed
+    
+    // Add image click handlers
+    document.addEventListener('click', (event) => {
+        if (event.target.classList.contains('floating-image')) {
+            handleImageClick(event);
+        }
+    });
+    
+    // Create initial sound waves
+    createSoundWaves();
+    
+    // Start some ambient effects immediately
+    setTimeout(() => {
+        createBalloon();
+        createMusicalNote();
+        createSparkle();
+    }, 1000);
 });
 
 // Optional: Pause/resume functionality (uncomment if needed)

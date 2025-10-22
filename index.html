@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Birthday Nan - Image Display</title>
+    <title>Happy Birthday Nan! 🎂</title>
     <link rel="stylesheet" href="style.css">
+    <!-- tsParticles for confetti and fireworks -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.0.3/tsparticles.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.0.3/tsparticles.fireworks.bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -14,6 +18,11 @@
                 <h1 id="birthdayText">Happy Birthday Nan!</h1>
         <div id="imageContainer"></div>
     </div>
+    
+    <!-- 🎊 Particle Effects Canvases -->
+    <canvas id="confetti-canvas"></canvas>
+    <canvas id="fireworks-canvas"></canvas>
+    
     <script src="script.js"></script>
 </body>
 </html>
