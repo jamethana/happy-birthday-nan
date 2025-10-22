@@ -495,27 +495,20 @@ h1:hover {
         border-radius: 20px;
     }
     
+    /* Make "Today is not Nan's birthday" text smaller on tablets */
+    #birthdayOverlay h1 {
+        font-size: 1.4rem !important;
+        padding: 18px 30px !important;
+    }
+    
     .floating-image {
-        max-width: 150px;
-        max-height: 120px;
+        max-width: 300px;
+        max-height: 300px;
     }
     
     .balloon {
         width: 40px;
         height: 60px;
-    }
-    
-    /* Reduce animation intensity on mobile */
-    @keyframes birthdayCelebration {
-        0% { 
-            transform: translate(-50%, -50%) scale(1) rotate(0deg);
-        }
-        50% { 
-            transform: translate(-50%, -50%) scale(1.1) rotate(1deg);
-        }
-        100% { 
-            transform: translate(-50%, -50%) scale(1) rotate(0deg);
-        }
     }
 }
 
@@ -523,13 +516,19 @@ h1:hover {
 @media (max-width: 480px) {
     h1 {
         font-size: 1.5rem;
-        padding: 10px 20px;
-        border-radius: 15px;
+        padding: 5px 10px;
+        border-radius: 10px;
+    }
+    
+    /* Make "Today is not Nan's birthday" text smaller on mobile */
+    #birthdayOverlay h1 {
+        font-size: 1.2rem !important;
+        padding: 5px 15px !important;
     }
     
     .floating-image {
-        max-width: 100px;
-        max-height: 80px;
+        max-width: 250px;
+        max-height: 250px;
     }
     
     .balloon {
@@ -539,8 +538,8 @@ h1:hover {
     
     /* Reduce particle effects on small screens */
     .sparkle {
-        width: 3px;
-        height: 3px;
+        width: 5px;
+        height: 5px;
     }
     
     .party-popper {
