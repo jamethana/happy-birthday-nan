@@ -590,6 +590,10 @@ let celebrationMode = true;
 let confettiEngine = null;
 let fireworksEngine = null;
 
+// 🎵 Audio Management
+let birthdayAudio = null;
+let isMuted = false;
+
 // Initialize tsParticles
 async function initializeParticles() {
     try {
@@ -915,6 +919,49 @@ function optimizeForMobile() {
     };
 }
 
+// 🎵 Audio Functions
+function initializeAudio() {
+    birthdayAudio = document.getElementById('birthdayAudio');
+    if (birthdayAudio) {
+        birthdayAudio.volume = 0.3; // Set volume to 30%
+        birthdayAudio.loop = true;
+        
+        // Try to play audio (will be muted by browser until user interaction)
+        birthdayAudio.play().catch(error => {
+            console.log('Audio autoplay blocked:', error);
+        });
+    }
+}
+
+// Function to start audio on first user interaction
+function startAudioOnInteraction() {
+    if (birthdayAudio && !isMuted) {
+        birthdayAudio.play().catch(error => {
+            console.log('Audio play failed:', error);
+        });
+    }
+}
+
+function toggleMute() {
+    if (!birthdayAudio) return;
+    
+    isMuted = !isMuted;
+    const muteButton = document.getElementById('muteToggle');
+    const muteIcon = document.getElementById('muteIcon');
+    
+    if (isMuted) {
+        birthdayAudio.pause();
+        muteButton.classList.add('muted');
+        muteIcon.textContent = '🔇';
+    } else {
+        birthdayAudio.play().catch(error => {
+            console.log('Audio play failed:', error);
+        });
+        muteButton.classList.remove('muted');
+        muteIcon.textContent = '🔊';
+    }
+}
+
 // Initialize all image controllers when page loads
 window.addEventListener('load', async () => {
     // Always load everything in the background
@@ -923,6 +970,9 @@ window.addEventListener('load', async () => {
     
     // Initialize particles
     await initializeParticles();
+    
+    // Initialize audio
+    initializeAudio();
     
     // Update birthday text first
     updateBirthdayText();
@@ -947,6 +997,25 @@ window.addEventListener('load', async () => {
             handleImageClick(event);
         }
     });
+    
+    // Add mute toggle event listener
+    const muteButton = document.getElementById('muteToggle');
+    if (muteButton) {
+        muteButton.addEventListener('click', toggleMute);
+    }
+    
+    // Start audio on first user interaction (click, touch, keypress)
+    const startAudioOnce = () => {
+        startAudioOnInteraction();
+        // Remove listeners after first interaction
+        document.removeEventListener('click', startAudioOnce);
+        document.removeEventListener('touchstart', startAudioOnce);
+        document.removeEventListener('keydown', startAudioOnce);
+    };
+    
+    document.addEventListener('click', startAudioOnce);
+    document.addEventListener('touchstart', startAudioOnce);
+    document.addEventListener('keydown', startAudioOnce);
     
     // Create initial sound waves
     createSoundWaves();
