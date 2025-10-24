@@ -1,13 +1,44 @@
 // Configuration
 const CONFIG = {
-    minDisplayDuration: 3000, // Minimum display duration (in milliseconds) - 1 second
-    maxDisplayDuration: 10000, // Maximum display duration (in milliseconds)
-    minHideDuration: 100, // Minimum time hidden (in milliseconds)
-    maxHideDuration: 2000, // Maximum time hidden (in milliseconds)
-    minSize: 250, // Minimum image size (px) - much smaller
-    maxSize: 400, // Maximum image size (px) - much larger
+    minDisplayDuration: 4000, // Increased for better performance
+    maxDisplayDuration: 12000, // Increased for better performance
+    minHideDuration: 200, // Increased for better performance
+    maxHideDuration: 3000, // Increased for better performance
+    minSize: 200, // Reduced for better performance
+    maxSize: 350, // Reduced for better performance
     maxRotation: 360 // Maximum rotation in degrees - full rotation
 };
+
+// Performance monitoring
+let performanceMode = 'normal';
+let frameCount = 0;
+let lastTime = performance.now();
+let fps = 60;
+
+// Monitor performance and adjust quality
+function monitorPerformance() {
+    frameCount++;
+    const currentTime = performance.now();
+    
+    if (currentTime - lastTime >= 1000) {
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = currentTime;
+        
+        // Adjust performance mode based on FPS
+        if (fps < 30) {
+            performanceMode = 'low';
+            console.log('Switching to low performance mode (FPS:', fps, ')');
+        } else if (fps < 45) {
+            performanceMode = 'medium';
+            console.log('Switching to medium performance mode (FPS:', fps, ')');
+        } else {
+            performanceMode = 'normal';
+        }
+    }
+    
+    requestAnimationFrame(monitorPerformance);
+}
 
 // Array of image filenames - will be populated dynamically
 let imageFiles = [];
@@ -243,8 +274,11 @@ function getQuadrantBounds(quadrant) {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
-    // 5% gap from screen edges
-    const edgeGap = Math.min(window.innerWidth * 0.05, window.innerHeight * 0.05);
+    // 15% gap from screen edges for better containment
+    const isMobile = window.innerWidth <= 768;
+    const baseGap = Math.min(window.innerWidth * 0.15, window.innerHeight * 0.15);
+    // Add extra margin on mobile for better containment
+    const edgeGap = isMobile ? Math.max(baseGap, 80) : baseGap;
     const minX = edgeGap;
     const maxX = window.innerWidth - edgeGap;
     const minY = edgeGap;
@@ -490,7 +524,7 @@ async function fetchImageFiles() {
     // Use the comprehensive list of known images directly
     // This is more reliable than trying to detect dynamically
     imageFiles = [
-        '000000857889_25744415_b360_40ba_8e98_e4fa5f11b2d3.jpeg',
+        '000000857889_25744415_b360_40ba_8e98_e4fa5f11b2d3.png',
         '1756372944.png',
         '525ce9b544e67a8d21.png',
         'a-festive-partying-emoji-face-with-a-party-hat-and-blowing-confetti-expressing-joy-and-celebration-with-bright-yellow-colors-png.png',
@@ -711,24 +745,7 @@ function triggerFireworks() {
     }
 }
 
-// 🎈 Create Floating Balloons - Start Higher!
-function createBalloon() {
-    const balloon = document.createElement('div');
-    balloon.className = 'balloon';
-    balloon.style.left = Math.random() * (window.innerWidth - 60) + 'px';
-    balloon.style.top = '80vh'; // Start higher up
-    balloon.style.background = `linear-gradient(45deg, 
-        hsl(${Math.random() * 360}, 70%, 60%), 
-        hsl(${Math.random() * 360}, 70%, 70%))`;
-    
-    document.body.appendChild(balloon);
-    
-    setTimeout(() => {
-        if (balloon.parentNode) {
-            balloon.parentNode.removeChild(balloon);
-        }
-    }, 8000);
-}
+// 🎈 Balloon function removed
 
 // 🎵 Create Musical Notes
 function createMusicalNote() {
@@ -803,10 +820,7 @@ function createClickEffect(x, y) {
 function startCelebrationEffects() {
     const intervals = optimizeForMobile();
     
-    // Balloons with mobile-optimized interval
-    setInterval(() => {
-        createBalloon();
-    }, intervals.balloonInterval);
+    // Balloons removed
     
     // Musical notes with mobile-optimized interval
     setInterval(() => {
@@ -832,18 +846,7 @@ function addRainbowText() {
     }
 }
 
-// 🎵 Sound Wave Visualization
-function createSoundWaves() {
-    const container = document.querySelector('.container');
-    for (let i = 0; i < 20; i++) {
-        const wave = document.createElement('div');
-        wave.className = 'sound-wave';
-        wave.style.left = (i * 20) + 'px';
-        wave.style.top = '20px'; // Position at top of screen
-        wave.style.animationDelay = (i * 0.1) + 's';
-        container.appendChild(wave);
-    }
-}
+// 🎵 Sound wave function removed
 
 // 🎊 Interactive Click Handler
 function handleInteractiveClick(event) {
@@ -863,9 +866,7 @@ function handleInteractiveClick(event) {
     if (Math.random() < 0.3) {
         createMusicalNote();
     }
-    if (Math.random() < 0.2) {
-        createBalloon();
-    }
+    // Balloons removed
 }
 
 // 🎂 Enhanced Birthday Text Click
@@ -911,11 +912,7 @@ function handleImageClick(event) {
     triggerConfettiBurst(x / window.innerWidth, y / window.innerHeight);
     createPartyPopper(x, y);
     
-    // Make image bounce
-    event.target.style.animation = 'none';
-    setTimeout(() => {
-        event.target.style.animation = 'enhancedFadeInScale 0.5s ease-in-out';
-    }, 10);
+    // Animation disabled - no bounce effect on click
 }
 
 // 📱 Mobile Performance Optimizations
@@ -934,7 +931,6 @@ function optimizeForMobile() {
         if (window.innerWidth <= 480) {
             // Very small screens - minimal effects
             return {
-                balloonInterval: 5000,
                 noteInterval: 4000,
                 sparkleInterval: 2000,
                 fireworkInterval: 8000
@@ -942,7 +938,6 @@ function optimizeForMobile() {
         } else {
             // Regular mobile - reduced effects
             return {
-                balloonInterval: 4000,
                 noteInterval: 3000,
                 sparkleInterval: 1500,
                 fireworkInterval: 6000
@@ -950,7 +945,6 @@ function optimizeForMobile() {
         }
     }
     return {
-        balloonInterval: 3000,
         noteInterval: 2000,
         sparkleInterval: 1000,
         fireworkInterval: 5000
@@ -1056,7 +1050,13 @@ function spawnWish() {
     
     // Random scroll speed (10-25 seconds)
     const randomSpeed = Math.random() * 15 + 10;
-    wishElement.style.animation = `scrollRightToLeft ${randomSpeed}s linear forwards, rainbowText 3s ease-in-out infinite`;
+    wishElement.style.animation = `scrollRightToLeft ${randomSpeed}s linear forwards`;
+    
+    // Add stable styling to prevent resizing
+    wishElement.style.fontSize = '1.6rem';
+    wishElement.style.fontWeight = 'bold';
+    wishElement.style.whiteSpace = 'nowrap';
+    wishElement.style.willChange = 'transform';
     
     // Add to container
     container.appendChild(wishElement);
@@ -1157,18 +1157,20 @@ window.addEventListener('load', async () => {
         }
     });
     
-    // Create initial sound waves
-    createSoundWaves();
+    // Sound waves removed
     
     // Start some ambient effects immediately
     setTimeout(() => {
-        createBalloon();
+        // Balloons removed
         createMusicalNote();
         createSparkle();
     }, 1000);
     
     // Start birthday wishes
     startBirthdayWishes();
+    
+    // Start performance monitoring
+    monitorPerformance();
 });
 
 // Optional: Pause/resume functionality (uncomment if needed)
