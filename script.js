@@ -950,6 +950,11 @@ function initializeAudio() {
         birthdayAudio.volume = 0.3; // Set volume to 30%
         birthdayAudio.loop = true;
         
+        // Load audio in background on mobile to avoid blocking
+        if (isMobileDevice()) {
+            birthdayAudio.load();
+        }
+        
         // Try to play audio (will be muted by browser until user interaction)
         birthdayAudio.play().catch(error => {
             console.log('Audio autoplay blocked:', error);
@@ -1086,27 +1091,30 @@ function stopBirthdayWishes() {
 
 // Initialize all image controllers when page loads
 window.addEventListener('load', async () => {
-    // Always load everything in the background
-    await fetchImageFiles();
-    initializeImageControllers();
-    
-    // Initialize particles
-    await initializeParticles();
-    
-    // Initialize audio
-    initializeAudio();
-    
-    // Update birthday text first
+    // Update birthday text first (fastest)
     updateBirthdayText();
     
-    // Start countdown timer
+    // Start countdown timer (fast)
     startCountdown();
     
-    // Then check if it's Nan's birthday and show appropriate content
+    // Check if it's Nan's birthday and show appropriate content (fast)
     showBirthdayContent();
+    
+    // Initialize audio (lightweight)
+    initializeAudio();
     
     // Start celebration effects immediately (always on!)
     startCelebrationEffects();
+    
+    // Load heavy assets after initial render
+    setTimeout(async () => {
+        // Load images in background
+        await fetchImageFiles();
+        initializeImageControllers();
+        
+        // Initialize particles (heavy)
+        await initializeParticles();
+    }, 1000); // Delay heavy loading by 1 second
     
     // Add interactive click handlers
     document.addEventListener('click', handleInteractiveClick);
