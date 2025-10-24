@@ -3,7 +3,7 @@ const CONFIG = {
     minDisplayDuration: 3000, // Minimum display duration (in milliseconds) - 1 second
     maxDisplayDuration: 10000, // Maximum display duration (in milliseconds)
     minHideDuration: 100, // Minimum time hidden (in milliseconds)
-    maxHideDuration: 4000, // Maximum time hidden (in milliseconds)
+    maxHideDuration: 2000, // Maximum time hidden (in milliseconds)
     minSize: 250, // Minimum image size (px) - much smaller
     maxSize: 400, // Maximum image size (px) - much larger
     maxRotation: 360 // Maximum rotation in degrees - full rotation
@@ -79,38 +79,39 @@ function showBirthdayContent() {
         `;
         
         overlay.innerHTML = `
-            <div id="countdownText" style="
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                color: white;
-                font-family: Arial, sans-serif;
-                font-size: 1.2rem;
-                font-weight: normal;
-                z-index: 10001;
-                text-align: center;
-            ">Loading countdown...</div>
             <div style="
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 text-align: center;
+                z-index: 10001;
+                white-space: nowrap;
             ">
-                <h1 style="
+                <div style="
                     color: white;
                     font-family: Arial, sans-serif;
-                    font-size: 1.2rem;
-                    margin: 0;
+                    font-size: 1.5rem;
+                    margin: 0 0 30px 0;
                     font-weight: normal;
-                    animation: none;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                ">Today is not Nan's birthday</div>
+                <div id="countdownText" style="
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    font-size: 1.1rem;
+                    font-weight: normal;
+                    text-align: center;
                     background: rgba(0, 0, 0, 0.3);
-                    padding: 20px 40px;
-                    border-radius: 20px;
-                    backdrop-filter: blur(10px);
-                ">Today is not Nan's birthday</h1>
+                    padding: 15px 30px;
+                    border-radius: 10px;
+                    display: inline-block;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                ">Loading countdown...</div>
             </div>
             <button id="celebrateAnyway" style="
                 position: fixed;
@@ -219,6 +220,7 @@ function getOrdinalSuffix(num) {
 
 // Track active image controllers
 const imageControllers = new Map(); // filename -> controller
+let currentQuadrant = 0; // Track current quadrant for rotation (0-3)
 
 // Function to get random value between min and max
 function getRandomValue(min, max) {
@@ -228,6 +230,63 @@ function getRandomValue(min, max) {
 // Function to get random float between min and max
 function getRandomFloat(min, max) {
     return Math.random() * (max - min) + min;
+}
+
+// Function to get next quadrant for rotation
+function getNextQuadrant() {
+    currentQuadrant = (currentQuadrant + 1) % 4;
+    return currentQuadrant;
+}
+
+// Function to get quadrant boundaries
+function getQuadrantBounds(quadrant) {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // 5% gap from screen edges
+    const edgeGap = Math.min(window.innerWidth * 0.05, window.innerHeight * 0.05);
+    const minX = edgeGap;
+    const maxX = window.innerWidth - edgeGap;
+    const minY = edgeGap;
+    const maxY = window.innerHeight - edgeGap;
+    
+    switch (quadrant) {
+        case 0: // Top-left
+            return {
+                minX: minX,
+                maxX: centerX,
+                minY: minY,
+                maxY: centerY
+            };
+        case 1: // Top-right
+            return {
+                minX: centerX,
+                maxX: maxX,
+                minY: minY,
+                maxY: centerY
+            };
+        case 2: // Bottom-left
+            return {
+                minX: minX,
+                maxX: centerX,
+                minY: centerY,
+                maxY: maxY
+            };
+        case 3: // Bottom-right
+            return {
+                minX: centerX,
+                maxX: maxX,
+                minY: centerY,
+                maxY: maxY
+            };
+        default:
+            return {
+                minX: minX,
+                maxX: maxX,
+                minY: minY,
+                maxY: maxY
+            };
+    }
 }
 
 // Image Controller Class - Simplified approach
@@ -334,82 +393,22 @@ class ImageController {
         this.img.className = 'floating-image';
         this.img.alt = 'Birthday image';
         
-        // Generate random position avoiding center text area and other images
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+        // Use quadrant rotation system to prevent clustering
+        const targetQuadrant = getNextQuadrant();
+        const bounds = getQuadrantBounds(targetQuadrant);
         const isMobile = window.innerWidth <= 768;
-        const textAreaSize = isMobile ? 200 : 300; // Smaller text area on mobile
         const minDistanceFromOthers = isMobile ? 100 : 150; // Smaller distance on mobile
         
         let randomX, randomY;
         let attempts = 0;
-        const maxAttempts = 20; // Increased attempts for better distribution
+        const maxAttempts = 10; // Reduced attempts since we removed center constraint
         
         do {
-            // Generate position with more variation and better distribution
-            // Mobile-friendly border margins
-            const isMobile = window.innerWidth <= 768;
-            const borderMargin = isMobile ? 50 : 200; // Smaller margin on mobile
-            const maxX = Math.max(0, window.innerWidth - borderMargin);
-            const maxY = Math.max(0, window.innerHeight - borderMargin);
+            // Generate position within the target quadrant
+            randomX = bounds.minX + Math.random() * (bounds.maxX - bounds.minX);
+            randomY = bounds.minY + Math.random() * (bounds.maxY - bounds.minY);
             
-            // Use different distribution strategies to avoid clustering
-            if (attempts % 3 === 0) {
-                // Strategy 1: Pure random
-                randomX = Math.random() * Math.max(0, maxX);
-                randomY = Math.random() * Math.max(0, maxY);
-            } else if (attempts % 3 === 1) {
-                // Strategy 2: Edge-biased (favor edges but not borders)
-                const edgeBias = isMobile ? 0.2 : 0.3; // Less edge bias on mobile
-                if (Math.random() < edgeBias) {
-                    // Position near edges but with margin from borders
-                    const edgeMargin = isMobile ? 30 : 100; // Smaller margin on mobile
-                    randomX = Math.random() < 0.5 ? 
-                        edgeMargin + Math.random() * (isMobile ? 100 : 200) : // Near left edge but not at border
-                        maxX - edgeMargin - Math.random() * (isMobile ? 100 : 200); // Near right edge but not at border
-                    randomY = Math.random() < 0.5 ? 
-                        edgeMargin + Math.random() * (isMobile ? 100 : 200) : // Near top edge but not at border
-                        maxY - edgeMargin - Math.random() * (isMobile ? 100 : 200); // Near bottom edge but not at border
-                } else {
-                    randomX = Math.random() * Math.max(0, maxX);
-                    randomY = Math.random() * Math.max(0, maxY);
-                }
-            } else {
-                // Strategy 3: Corner-biased (but avoid borders)
-                const cornerBias = isMobile ? 0.2 : 0.4; // Less corner bias on mobile
-                if (Math.random() < cornerBias) {
-                    const corner = Math.floor(Math.random() * 4);
-                    const cornerMargin = isMobile ? 50 : 150; // Smaller margin on mobile
-                    switch (corner) {
-                        case 0: // Top-left
-                            randomX = cornerMargin + Math.random() * (maxX * 0.3 - cornerMargin);
-                            randomY = cornerMargin + Math.random() * (maxY * 0.3 - cornerMargin);
-                            break;
-                        case 1: // Top-right
-                            randomX = maxX * 0.7 + Math.random() * (maxX * 0.3 - cornerMargin);
-                            randomY = cornerMargin + Math.random() * (maxY * 0.3 - cornerMargin);
-                            break;
-                        case 2: // Bottom-left
-                            randomX = cornerMargin + Math.random() * (maxX * 0.3 - cornerMargin);
-                            randomY = maxY * 0.7 + Math.random() * (maxY * 0.3 - cornerMargin);
-                            break;
-                        case 3: // Bottom-right
-                            randomX = maxX * 0.7 + Math.random() * (maxX * 0.3 - cornerMargin);
-                            randomY = maxY * 0.7 + Math.random() * (maxY * 0.3 - cornerMargin);
-                            break;
-                    }
-                } else {
-                    randomX = Math.random() * Math.max(0, maxX);
-                    randomY = Math.random() * Math.max(0, maxY);
-                }
-            }
-            
-            // Check if position is too close to center text
-            const distanceFromCenter = Math.sqrt(
-                Math.pow(randomX - centerX, 2) + Math.pow(randomY - centerY, 2)
-            );
-            
-            // Check distance from other visible images
+            // Check if position is too close to other images
             let tooCloseToOthers = false;
             const allImages = document.querySelectorAll('.floating-image');
             for (let img of allImages) {
@@ -427,13 +426,17 @@ class ImageController {
                 }
             }
             
-            // If far enough from center and other images, or max attempts reached, use this position
-            if ((distanceFromCenter > textAreaSize && !tooCloseToOthers) || attempts >= maxAttempts) {
+            if (!tooCloseToOthers) {
                 break;
             }
             
             attempts++;
         } while (attempts < maxAttempts);
+        
+        // If we couldn't find a good position after max attempts, use the last generated position
+        if (attempts >= maxAttempts) {
+            console.log(`Warning: Could not find optimal position for ${this.filename} in quadrant ${targetQuadrant} after ${maxAttempts} attempts`);
+        }
         
         // Set position
         this.img.style.left = `${randomX}px`;
@@ -536,15 +539,15 @@ function initializeImageControllers() {
 
 // Function to handle window resize
 function handleResize() {
-    // Update positions for all visible images
+    // Update positions for all visible images using quadrant system
     imageControllers.forEach(controller => {
         if (controller.isVisible && controller.img) {
-            // Generate new random position
-            const maxX = window.innerWidth - 200;
-            const maxY = window.innerHeight - 200;
+            // Get a random quadrant for repositioning
+            const randomQuadrant = Math.floor(Math.random() * 4);
+            const bounds = getQuadrantBounds(randomQuadrant);
             
-            const randomX = Math.random() * Math.max(0, maxX);
-            const randomY = Math.random() * Math.max(0, maxY);
+            const randomX = bounds.minX + Math.random() * (bounds.maxX - bounds.minX);
+            const randomY = bounds.minY + Math.random() * (bounds.maxY - bounds.minY);
             
             controller.img.style.left = `${randomX}px`;
             controller.img.style.top = `${randomY}px`;
@@ -895,6 +898,14 @@ function handleImageClick(event) {
     const x = event.clientX;
     const y = event.clientY;
     
+    // Start audio on first image click
+    if (birthdayAudio && birthdayAudio.paused) {
+        birthdayAudio.play().catch(error => {
+            console.log('Audio play failed on image click:', error);
+        });
+        console.log('Audio started on image click');
+    }
+    
     // Create effects around the image
     createClickEffect(x, y);
     triggerConfettiBurst(x / window.innerWidth, y / window.innerHeight);
@@ -958,21 +969,12 @@ function initializeAudio() {
             birthdayAudio.load();
         }
         
-        // Try to play audio (will be muted by browser until user interaction)
-        birthdayAudio.play().catch(error => {
-            console.log('Audio autoplay blocked:', error);
-        });
+        // Don't start audio automatically - wait for image click
+        console.log('Audio initialized but not started - waiting for image click');
     }
 }
 
-// Function to start audio on first user interaction
-function startAudioOnInteraction() {
-    if (birthdayAudio && !isMuted) {
-        birthdayAudio.play().catch(error => {
-            console.log('Audio play failed:', error);
-        });
-    }
-}
+// Audio will only start when a floating image is clicked
 
 // Function to handle tab focus/blur for mobile audio management
 function handleTabFocus() {
@@ -1139,18 +1141,7 @@ window.addEventListener('load', async () => {
         muteButton.addEventListener('click', toggleMute);
     }
     
-    // Start audio on first user interaction (click, touch, keypress)
-    const startAudioOnce = () => {
-        startAudioOnInteraction();
-        // Remove listeners after first interaction
-        document.removeEventListener('click', startAudioOnce);
-        document.removeEventListener('touchstart', startAudioOnce);
-        document.removeEventListener('keydown', startAudioOnce);
-    };
-    
-    document.addEventListener('click', startAudioOnce);
-    document.addEventListener('touchstart', startAudioOnce);
-    document.addEventListener('keydown', startAudioOnce);
+    // Audio will only start when a floating image is clicked
     
     // Add tab focus/blur listeners for mobile audio management
     window.addEventListener('focus', handleTabFocus);
