@@ -828,6 +828,10 @@ body #birthdayOverlay h1:hover {
             drop-shadow(-1px -1px 0px rgba(0, 0, 0, 1)) 
             drop-shadow(1px -1px 0px rgba(0, 0, 0, 1)) 
             drop-shadow(-1px 1px 0px rgba(0, 0, 0, 1));
+    /* Ensure no word wrapping */
+    word-wrap: normal;
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
 @keyframes scrollRightToLeft {
@@ -858,11 +862,11 @@ body #birthdayOverlay h1:hover {
     
     .wish-text {
         font-size: 1.2rem;
-        /* Ensure wishes don't get cut off on mobile */
-        max-width: calc(100vw - 20px);
-        word-wrap: break-word;
-        white-space: normal;
-        line-height: 1.2;
+        /* Keep wishes as single lines */
+        white-space: nowrap;
+        word-wrap: normal;
+        overflow-wrap: normal;
+        word-break: normal;
     }
 }
 
@@ -875,11 +879,11 @@ body #birthdayOverlay h1:hover {
     
     .wish-text {
         font-size: 1rem;
-        /* Ensure wishes don't get cut off on mobile */
-        max-width: calc(100vw - 20px);
-        word-wrap: break-word;
-        white-space: normal;
-        line-height: 1.2;
+        /* Keep wishes as single lines */
+        white-space: nowrap;
+        word-wrap: normal;
+        overflow-wrap: normal;
+        word-break: normal;
     }
 }
 
