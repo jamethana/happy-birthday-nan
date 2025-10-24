@@ -1,10 +1,10 @@
 // Configuration
 const CONFIG = {
-    minDisplayDuration: 2000, // Minimum display duration (in milliseconds) - 1 second
-    maxDisplayDuration: 5000, // Maximum display duration (in milliseconds)
-    minHideDuration: 500, // Minimum time hidden (in milliseconds)
-    maxHideDuration: 2000, // Maximum time hidden (in milliseconds)
-    minSize: 100, // Minimum image size (px) - much smaller
+    minDisplayDuration: 3000, // Minimum display duration (in milliseconds) - 1 second
+    maxDisplayDuration: 10000, // Maximum display duration (in milliseconds)
+    minHideDuration: 100, // Minimum time hidden (in milliseconds)
+    maxHideDuration: 4000, // Maximum time hidden (in milliseconds)
+    minSize: 250, // Minimum image size (px) - much smaller
     maxSize: 400, // Maximum image size (px) - much larger
     maxRotation: 360 // Maximum rotation in degrees - full rotation
 };
@@ -593,6 +593,30 @@ let fireworksEngine = null;
 // 🎵 Audio Management
 let birthdayAudio = null;
 let isMuted = false;
+let wasPlayingBeforeBlur = false;
+
+// 🎂 Birthday Wishes
+const birthdayWishes = [
+    "🎂 Happy Birthday Nan! May your day be filled with joy and laughter! 🎉",
+    "🌟 Another year older, another year wiser! Happy Birthday! ✨",
+    "🎈 Wishing you a year filled with happiness, health, and all your dreams! 🌈",
+    "🎊 May this new year of life bring you endless joy and wonderful memories! 🎁",
+    "🎵 Happy Birthday! Here's to another year of amazing adventures! 🚀",
+    "🎪 May your special day be as wonderful and unique as you are! 🎭",
+    "🎨 Wishing you a birthday filled with love, laughter, and lots of cake! 🍰",
+    "🎯 Happy Birthday! May all your wishes come true this year! ⭐",
+    "🎲 Another trip around the sun! Wishing you the happiest of birthdays! 🌞",
+    "🎪 May your birthday be the start of a year filled with good luck and happiness! 🍀",
+    "🎊 Happy Birthday! May your day be as bright and beautiful as you are! ☀️",
+    "🎈 Here's to another year of being absolutely amazing! Happy Birthday! 🌟",
+    "🎂 Wishing you a day filled with love, laughter, and all your favorite things! 💖",
+    "🎉 Happy Birthday! May this year be your best one yet! 🚀",
+    "🎪 Another year of being incredible! Happy Birthday! ✨"
+];
+
+let currentWishIndex = 0;
+let spawnInterval = null;
+let activeWishes = [];
 
 // Initialize tsParticles
 async function initializeParticles() {
@@ -942,6 +966,29 @@ function startAudioOnInteraction() {
     }
 }
 
+// Function to handle tab focus/blur for mobile audio management
+function handleTabFocus() {
+    console.log('Tab focused - wasPlayingBeforeBlur:', wasPlayingBeforeBlur, 'isMuted:', isMuted);
+    if (birthdayAudio && !isMuted && wasPlayingBeforeBlur) {
+        birthdayAudio.play().catch(error => {
+            console.log('Audio play failed on focus:', error);
+        });
+    }
+    // Reset the flag after attempting to resume
+    wasPlayingBeforeBlur = false;
+}
+
+function handleTabBlur() {
+    console.log('Tab blurred - audio paused:', birthdayAudio ? birthdayAudio.paused : 'no audio');
+    if (birthdayAudio && !birthdayAudio.paused) {
+        wasPlayingBeforeBlur = true;
+        birthdayAudio.pause();
+        console.log('Audio paused due to tab blur');
+    } else {
+        wasPlayingBeforeBlur = false;
+    }
+}
+
 function toggleMute() {
     if (!birthdayAudio) return;
     
@@ -960,6 +1007,81 @@ function toggleMute() {
         muteButton.classList.remove('muted');
         muteIcon.textContent = '🔊';
     }
+}
+
+// 🎂 Birthday Wishes Functions
+function startBirthdayWishes() {
+    // Start spawning wishes every 2-10 seconds
+    spawnWish();
+    spawnInterval = setInterval(spawnWish, getRandomSpawnDelay());
+}
+
+function getRandomSpawnDelay() {
+    // Random delay between 2-10 seconds
+    return Math.random() * 8000 + 2000; // 2000-10000ms
+}
+
+function spawnWish() {
+    const container = document.getElementById('birthdayWishes');
+    if (!container) return;
+    
+    // Create new wish element
+    const wishElement = document.createElement('div');
+    wishElement.className = 'wish-text';
+    
+    // Get random wish
+    const randomIndex = Math.floor(Math.random() * birthdayWishes.length);
+    const wish = birthdayWishes[randomIndex];
+    wishElement.textContent = wish;
+    
+    // Random Y position (20px to 90% of screen height) - almost full screen coverage
+    const maxY = window.innerHeight * 0.9;
+    const randomY = Math.random() * (maxY - 20) + 20;
+    wishElement.style.top = randomY + 'px';
+    
+    // Debug: log the Y position to see if it's working
+    console.log('Wish Y position:', randomY, 'Max Y:', maxY, 'Screen height:', window.innerHeight);
+    
+    // Random scroll speed (10-25 seconds)
+    const randomSpeed = Math.random() * 15 + 10;
+    wishElement.style.animation = `scrollRightToLeft ${randomSpeed}s linear forwards, rainbowText 3s ease-in-out infinite`;
+    
+    // Add to container
+    container.appendChild(wishElement);
+    activeWishes.push(wishElement);
+    
+    // Remove element after animation completes
+    setTimeout(() => {
+        if (wishElement.parentNode) {
+            wishElement.parentNode.removeChild(wishElement);
+        }
+        // Remove from active wishes array
+        const index = activeWishes.indexOf(wishElement);
+        if (index > -1) {
+            activeWishes.splice(index, 1);
+        }
+    }, randomSpeed * 1000);
+    
+    // Schedule next spawn
+    if (spawnInterval) {
+        clearInterval(spawnInterval);
+        spawnInterval = setInterval(spawnWish, getRandomSpawnDelay());
+    }
+}
+
+function stopBirthdayWishes() {
+    if (spawnInterval) {
+        clearInterval(spawnInterval);
+        spawnInterval = null;
+    }
+    
+    // Remove all active wishes
+    activeWishes.forEach(wish => {
+        if (wish.parentNode) {
+            wish.parentNode.removeChild(wish);
+        }
+    });
+    activeWishes = [];
 }
 
 // Initialize all image controllers when page loads
@@ -1017,6 +1139,20 @@ window.addEventListener('load', async () => {
     document.addEventListener('touchstart', startAudioOnce);
     document.addEventListener('keydown', startAudioOnce);
     
+    // Add tab focus/blur listeners for mobile audio management
+    window.addEventListener('focus', handleTabFocus);
+    window.addEventListener('blur', handleTabBlur);
+    
+    // Also handle page visibility changes for better mobile support
+    document.addEventListener('visibilitychange', () => {
+        console.log('Visibility changed - hidden:', document.hidden);
+        if (document.hidden) {
+            handleTabBlur();
+        } else {
+            handleTabFocus();
+        }
+    });
+    
     // Create initial sound waves
     createSoundWaves();
     
@@ -1026,6 +1162,9 @@ window.addEventListener('load', async () => {
         createMusicalNote();
         createSparkle();
     }, 1000);
+    
+    // Start birthday wishes
+    startBirthdayWishes();
 });
 
 // Optional: Pause/resume functionality (uncomment if needed)

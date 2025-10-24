@@ -681,3 +681,77 @@ body #birthdayOverlay h1:hover {
     background: rgba(255, 0, 0, 0.9);
 }
 
+/* 🎂 Scrolling Birthday Wishes */
+.birthday-wishes-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 9997;
+    pointer-events: none;
+}
+
+.wish-text {
+    position: absolute;
+    white-space: nowrap;
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: scrollRightToLeft 15s linear forwards, rainbowText 3s ease-in-out infinite;
+    will-change: transform;
+    z-index: 9998;
+    filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 1)) 
+            drop-shadow(-1px -1px 0px rgba(0, 0, 0, 1)) 
+            drop-shadow(1px -1px 0px rgba(0, 0, 0, 1)) 
+            drop-shadow(-1px 1px 0px rgba(0, 0, 0, 1));
+}
+
+@keyframes scrollRightToLeft {
+    0% {
+        transform: translateX(100vw);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes rainbowText {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Mobile responsive wishes */
+@media (max-width: 768px) {
+    .birthday-wishes-container {
+        top: 0;
+        height: 100vh;
+    }
+    
+    .wish-text {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .birthday-wishes-container {
+        top: 0;
+        height: 100vh;
+    }
+    
+    .wish-text {
+        font-size: 1rem;
+    }
+}
+
