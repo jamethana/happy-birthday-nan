@@ -337,8 +337,9 @@ class ImageController {
         // Generate random position avoiding center text area and other images
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
-        const textAreaSize = 300; // Size of area to avoid around center text
-        const minDistanceFromOthers = 150; // Minimum distance from other images
+        const isMobile = window.innerWidth <= 768;
+        const textAreaSize = isMobile ? 200 : 300; // Smaller text area on mobile
+        const minDistanceFromOthers = isMobile ? 100 : 150; // Smaller distance on mobile
         
         let randomX, randomY;
         let attempts = 0;
@@ -346,10 +347,11 @@ class ImageController {
         
         do {
             // Generate position with more variation and better distribution
-            // Increased border margin to avoid edge placement
-            const borderMargin = 200; // Increased from 100 to 200
-            const maxX = window.innerWidth - borderMargin;
-            const maxY = window.innerHeight - borderMargin;
+            // Mobile-friendly border margins
+            const isMobile = window.innerWidth <= 768;
+            const borderMargin = isMobile ? 50 : 200; // Smaller margin on mobile
+            const maxX = Math.max(0, window.innerWidth - borderMargin);
+            const maxY = Math.max(0, window.innerHeight - borderMargin);
             
             // Use different distribution strategies to avoid clustering
             if (attempts % 3 === 0) {
@@ -358,26 +360,26 @@ class ImageController {
                 randomY = Math.random() * Math.max(0, maxY);
             } else if (attempts % 3 === 1) {
                 // Strategy 2: Edge-biased (favor edges but not borders)
-                const edgeBias = 0.3; // 30% chance to be near edges
+                const edgeBias = isMobile ? 0.2 : 0.3; // Less edge bias on mobile
                 if (Math.random() < edgeBias) {
                     // Position near edges but with margin from borders
-                    const edgeMargin = 100; // Distance from actual edge
+                    const edgeMargin = isMobile ? 30 : 100; // Smaller margin on mobile
                     randomX = Math.random() < 0.5 ? 
-                        edgeMargin + Math.random() * 200 : // Near left edge but not at border
-                        maxX - edgeMargin - Math.random() * 200; // Near right edge but not at border
+                        edgeMargin + Math.random() * (isMobile ? 100 : 200) : // Near left edge but not at border
+                        maxX - edgeMargin - Math.random() * (isMobile ? 100 : 200); // Near right edge but not at border
                     randomY = Math.random() < 0.5 ? 
-                        edgeMargin + Math.random() * 200 : // Near top edge but not at border
-                        maxY - edgeMargin - Math.random() * 200; // Near bottom edge but not at border
+                        edgeMargin + Math.random() * (isMobile ? 100 : 200) : // Near top edge but not at border
+                        maxY - edgeMargin - Math.random() * (isMobile ? 100 : 200); // Near bottom edge but not at border
                 } else {
                     randomX = Math.random() * Math.max(0, maxX);
                     randomY = Math.random() * Math.max(0, maxY);
                 }
             } else {
                 // Strategy 3: Corner-biased (but avoid borders)
-                const cornerBias = 0.4; // 40% chance to be in corners
+                const cornerBias = isMobile ? 0.2 : 0.4; // Less corner bias on mobile
                 if (Math.random() < cornerBias) {
                     const corner = Math.floor(Math.random() * 4);
-                    const cornerMargin = 150; // Distance from actual corners
+                    const cornerMargin = isMobile ? 50 : 150; // Smaller margin on mobile
                     switch (corner) {
                         case 0: // Top-left
                             randomX = cornerMargin + Math.random() * (maxX * 0.3 - cornerMargin);
@@ -834,6 +836,7 @@ function createSoundWaves() {
         const wave = document.createElement('div');
         wave.className = 'sound-wave';
         wave.style.left = (i * 20) + 'px';
+        wave.style.top = '20px'; // Position at top of screen
         wave.style.animationDelay = (i * 0.1) + 's';
         container.appendChild(wave);
     }
@@ -948,7 +951,7 @@ function initializeAudio() {
     birthdayAudio = document.getElementById('birthdayAudio');
     if (birthdayAudio) {
         birthdayAudio.volume = 0.3; // Set volume to 30%
-        birthdayAudio.loop = true;
+        birthdayAudio.loop = false;
         
         // Load audio in background on mobile to avoid blocking
         if (isMobileDevice()) {
@@ -1039,13 +1042,15 @@ function spawnWish() {
     const wish = birthdayWishes[randomIndex];
     wishElement.textContent = wish;
     
-    // Random Y position (20px to 90% of screen height) - almost full screen coverage
-    const maxY = window.innerHeight * 0.9;
-    const randomY = Math.random() * (maxY - 20) + 20;
+    // Mobile-friendly Y position calculation
+    const isMobile = window.innerWidth <= 768;
+    const minY = isMobile ? 10 : 20; // Smaller margin on mobile
+    const maxY = isMobile ? window.innerHeight * 0.85 : window.innerHeight * 0.9; // Less coverage on mobile
+    const randomY = Math.random() * (maxY - minY) + minY;
     wishElement.style.top = randomY + 'px';
     
     // Debug: log the Y position to see if it's working
-    console.log('Wish Y position:', randomY, 'Max Y:', maxY, 'Screen height:', window.innerHeight);
+    console.log('Wish Y position:', randomY, 'Max Y:', maxY, 'Screen height:', window.innerHeight, 'Mobile:', isMobile);
     
     // Random scroll speed (10-25 seconds)
     const randomSpeed = Math.random() * 15 + 10;
