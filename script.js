@@ -1019,14 +1019,15 @@ function startBirthdayWishes() {
     for (let i = 0; i < 3; i++) {
         setTimeout(() => spawnWish(), i * 500); // Stagger initial spawns
     }
-    // Start spawning wishes more frequently (every 1-5 seconds)
+    // Start spawning wishes more frequently (every 0.5-4 seconds)
     spawnWish();
-    spawnInterval = setInterval(spawnWish, getRandomSpawnDelay());
+    spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(500, 4000));
 }
 
-function getRandomSpawnDelay() {
-    // Random delay between 1-5 seconds for more simultaneous wishes
-    return Math.random() * 4000 + 1000; // 1000-5000ms
+function getRandomSpawnDelay(minDelay = 500, maxDelay = 4000) {
+    // Random delay between minDelay and maxDelay (in milliseconds)
+    // Default: 0.5-4 seconds (500-4000ms)
+    return Math.random() * (maxDelay - minDelay) + minDelay;
 }
 
 function spawnWish() {
@@ -1081,7 +1082,7 @@ function spawnWish() {
     // Schedule next spawn
     if (spawnInterval) {
         clearInterval(spawnInterval);
-        spawnInterval = setInterval(spawnWish, getRandomSpawnDelay());
+        spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(500, 4000));
     }
 }
 
