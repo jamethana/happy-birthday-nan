@@ -1015,14 +1015,18 @@ function toggleMute() {
 
 // 🎂 Birthday Wishes Functions
 function startBirthdayWishes() {
-    // Start spawning wishes every 2-10 seconds
+    // Spawn multiple wishes initially for more simultaneous wishes
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => spawnWish(), i * 500); // Stagger initial spawns
+    }
+    // Start spawning wishes more frequently (every 1-5 seconds)
     spawnWish();
     spawnInterval = setInterval(spawnWish, getRandomSpawnDelay());
 }
 
 function getRandomSpawnDelay() {
-    // Random delay between 2-10 seconds
-    return Math.random() * 8000 + 2000; // 2000-10000ms
+    // Random delay between 1-5 seconds for more simultaneous wishes
+    return Math.random() * 4000 + 1000; // 1000-5000ms
 }
 
 function spawnWish() {
