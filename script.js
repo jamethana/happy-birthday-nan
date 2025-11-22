@@ -1006,18 +1006,17 @@ function toggleMute() {
 
 // 🎂 Birthday Wishes Functions
 function startBirthdayWishes() {
-    // Spawn multiple wishes initially for more simultaneous wishes
-    for (let i = 0; i < 3; i++) {
-        setTimeout(() => spawnWish(), i * 500); // Stagger initial spawns
+    // Spawn fewer wishes initially
+    for (let i = 0; i < 1; i++) {
+        setTimeout(() => spawnWish(), i * 1000); // Stagger initial spawns
     }
-    // Start spawning wishes more frequently (every 0.5-4 seconds)
+    // Start spawning wishes less frequently (every 3-8 seconds)
     spawnWish();
-    spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(500, 4000));
+    spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(2000, 6000));
 }
 
-function getRandomSpawnDelay(minDelay = 500, maxDelay = 4000) {
+function getRandomSpawnDelay(minDelay = 2000, maxDelay = 6000) {
     // Random delay between minDelay and maxDelay (in milliseconds)
-    // Default: 0.5-4 seconds (500-4000ms)
     return Math.random() * (maxDelay - minDelay) + minDelay;
 }
 
@@ -1073,7 +1072,7 @@ function spawnWish() {
     // Schedule next spawn
     if (spawnInterval) {
         clearInterval(spawnInterval);
-        spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(500, 4000));
+        spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(3000, 8000));
     }
 }
 
