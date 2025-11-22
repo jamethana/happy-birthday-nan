@@ -1029,16 +1029,78 @@ function spawnWish() {
     const wishElement = document.createElement('div');
     wishElement.className = 'wish-text';
     
-    // Get random wish
-    const randomIndex = Math.floor(Math.random() * birthdayWishes.length);
-    const wish = birthdayWishes[randomIndex];
+    // Get wish sequentially from the list
+    const wish = birthdayWishes[currentWishIndex];
     wishElement.textContent = wish;
     
-    // Mobile-friendly Y position calculation
+    // Move to next wish, wrapping around when reaching the end
+    currentWishIndex = (currentWishIndex + 1) % birthdayWishes.length;
+    
+    // Mobile-friendly Y position calculation with overlap prevention
     const isMobile = window.innerWidth <= 768;
     const minY = isMobile ? 10 : 20; // Smaller margin on mobile
     const maxY = isMobile ? window.innerHeight * 0.85 : window.innerHeight * 0.9; // Less coverage on mobile
-    const randomY = Math.random() * (maxY - minY) + minY;
+    const minSpacing = isMobile ? 60 : 80; // Minimum vertical spacing between wishes (px)
+    
+    let randomY;
+    
+    // If there are no active wishes, use a random position
+    if (activeWishes.length === 0) {
+        randomY = Math.random() * (maxY - minY) + minY;
+    } else {
+        // Get Y positions of all currently active wishes
+        const activeYPositions = activeWishes.map(wish => {
+            const rect = wish.getBoundingClientRect();
+            return {
+                top: rect.top,
+                bottom: rect.bottom,
+                center: rect.top + rect.height / 2
+            };
+        });
+        
+        // Try to find a non-overlapping Y position
+        let attempts = 0;
+        const maxAttempts = 50; // Maximum attempts to find a non-overlapping position
+        
+        do {
+            randomY = Math.random() * (maxY - minY) + minY;
+            attempts++;
+            
+            // Check if this position overlaps with any active wish
+            const overlaps = activeYPositions.some(pos => {
+                const wishCenter = pos.center;
+                const distance = Math.abs(randomY - wishCenter);
+                return distance < minSpacing;
+            });
+            
+            if (!overlaps) {
+                break; // Found a good position
+            }
+            
+            // If we've tried many times, find the best available position
+            if (attempts >= maxAttempts) {
+                // Find the position with maximum distance from all active wishes
+                let bestY = minY;
+                let maxMinDistance = 0;
+                
+                // Test several candidate positions
+                for (let testY = minY; testY <= maxY; testY += 20) {
+                    const minDistance = Math.min(...activeYPositions.map(pos => 
+                        Math.abs(testY - pos.center)
+                    ));
+                    
+                    if (minDistance > maxMinDistance) {
+                        maxMinDistance = minDistance;
+                        bestY = testY;
+                    }
+                }
+                
+                randomY = bestY;
+                break;
+            }
+        } while (attempts < maxAttempts);
+    }
+    
     wishElement.style.top = randomY + 'px';
     
     // Debug: log the Y position to see if it's working (remove in production)
