@@ -641,7 +641,8 @@ const birthdayWishes = [
     "Wish you a stable career and successful life!! -- Benny",
     "Happy Birthday! May your badminton duels with James be legendary! -- Tin Tin",
     "Happy birthday! Wishing you lots of promotions. Let's hang out soon! -- Darun",
-    "Happy Birthday, Nan! Wish you eternal youth, money raining down, and lots of happiness. -- Mind"
+    "Happy Birthday, Nan! Wish you eternal youth, money raining down, and lots of happiness. -- Mind",
+    "Happy birthday jaa ❤️ my bacs fwend -- Mae"
 ];
 
 let currentWishIndex = 0;
