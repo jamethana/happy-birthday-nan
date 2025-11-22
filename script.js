@@ -1040,8 +1040,8 @@ function spawnWish() {
     const randomY = Math.random() * (maxY - minY) + minY;
     wishElement.style.top = randomY + 'px';
     
-    // Debug: log the Y position to see if it's working
-    console.log('Wish Y position:', randomY, 'Max Y:', maxY, 'Screen height:', window.innerHeight, 'Mobile:', isMobile);
+    // Debug: log the Y position to see if it's working (remove in production)
+    // console.log('Wish Y position:', randomY, 'Max Y:', maxY, 'Screen height:', window.innerHeight, 'Mobile:', isMobile);
     
     // Random scroll speed (10-25 seconds)
     const randomSpeed = Math.random() * 15 + 10;
@@ -1072,7 +1072,7 @@ function spawnWish() {
     // Schedule next spawn
     if (spawnInterval) {
         clearInterval(spawnInterval);
-        spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(3000, 8000));
+        spawnInterval = setInterval(spawnWish, getRandomSpawnDelay(2000, 6000));
     }
 }
 
