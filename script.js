@@ -636,21 +636,12 @@ let wasPlayingBeforeBlur = false;
 
 // 🎂 Birthday Wishes
 const birthdayWishes = [
-    "🎂 Happy Birthday Nan! May your day be filled with joy and laughter! 🎉",
-    "🌟 Another year older, another year wiser! Happy Birthday! ✨",
-    "🎈 Wishing you a year filled with happiness, health, and all your dreams! 🌈",
-    "🎊 May this new year of life bring you endless joy and wonderful memories! 🎁",
-    "🎵 Happy Birthday! Here's to another year of amazing adventures! 🚀",
-    "🎪 May your special day be as wonderful and unique as you are! 🎭",
-    "🎨 Wishing you a birthday filled with love, laughter, and lots of cake! 🍰",
-    "🎯 Happy Birthday! May all your wishes come true this year! ⭐",
-    "🎲 Another trip around the sun! Wishing you the happiest of birthdays! 🌞",
-    "🎪 May your birthday be the start of a year filled with good luck and happiness! 🍀",
-    "🎊 Happy Birthday! May your day be as bright and beautiful as you are! ☀️",
-    "🎈 Here's to another year of being absolutely amazing! Happy Birthday! 🌟",
-    "🎂 Wishing you a day filled with love, laughter, and all your favorite things! 💖",
-    "🎉 Happy Birthday! May this year be your best one yet! 🚀",
-    "🎪 Another year of being incredible! Happy Birthday! ✨"
+    "Welcome to the 30s club! Happy Birthday! May the year of 2026 be your best one yet! 🌟 ✨ -- Jame",
+    "Happy Birthday Nan! Wishing you the best of 2026 and more years ahead 💕 Lets hang out again in 2026 na 😊 -- Lily",
+    "Wish you a stable career and successful life!! -- Benny",
+    "Happy Birthday! May your badminton duels with James be legendary! -- Tin Tin",
+    "Happy birthday! Wishing you lots of promotions. Let's hang out soon! -- Darun",
+    "Happy Birthday, Nan! Wish you eternal youth, money raining down, and lots of happiness. -- Mind"
 ];
 
 let currentWishIndex = 0;
